@@ -8,4 +8,4 @@ This console application is used to translate the values in a JSON file to the l
 - Create an environment Variable called `googleTranslateApiKey` on your computer
 - Paste the API key that you generated into the value section of `googleTranslateApiKey` 
 - Create a `C:\Temp` directory
-- The app wil look for a file called 'en-US.json' in the `C:\Temp` dir 
+- The app wil look for a file called `en-US.json` in the `C:\Temp` dir 
