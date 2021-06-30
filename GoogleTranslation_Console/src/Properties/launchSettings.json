@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "GoogleTranslation_Console": {
+      "commandName": "Project",
+      "commandLineArgs": "TargetLanguage=de;af TargetFileName=de-DE;af-AF CurrentFileLocation=C:\\temp\\en-us.json OutputFilePath=C:\\temp\\"
+    }
+  }
+}

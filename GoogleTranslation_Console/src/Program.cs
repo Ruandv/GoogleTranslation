@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using System.Reflection;
 using System.Web;
 
 namespace GoogleTranslation_Console
@@ -19,22 +20,47 @@ namespace GoogleTranslation_Console
          Italian	it
          Urdu	    ur
         */
-        static string[] targetLanguageList = new[] { "de" };
-        static string[] targetFileList = new[] { "de-DE" };
+
         static string apiKey = Environment.GetEnvironmentVariable("googleTranslateApiKey");
         static Dictionary<string, string> myData = new Dictionary<string, string>();
 
         static void Main(string[] args)
         {
-            string f = File.ReadAllText("C:\\temp\\en-us.json");
-            JToken jsonToken = JsonConvert.DeserializeObject<JToken>(f);
-            int index = 0;
-            foreach (string lang in targetLanguageList)
+            Console.WriteLine(args[0]);
+            MyArgs record = new MyArgs();
+            var myArgs = new Dictionary<string, string>();
+            if (args.Length != 4)
             {
-                TranslateValues(jsonToken, lang, apiKey);
+                Console.WriteLine("You need to supply the following arguments : ");
+                Console.WriteLine("Examples : ");
+                Console.WriteLine("[Multi language translations] GoogleTranslation_Console.exe TargetLanguage=de;af TargetFileName=de-DE;af-AF CurrentFileLocation=C:\\temp\\en-us.json OutputFilePath=C:\\temp\\ ");
+                Console.WriteLine("[Single language translations] GoogleTranslation_Console.exe TargetLanguage=af TargetFileName=af-AF CurrentFileLocation=C:\\temp\\en-us.json OutputFilePath=C:\\temp\\ ");
+                Console.ReadKey();
+                return;
+            }
+
+            foreach (string s in args)
+            {
+                myArgs.Add(s.Split("=")[0], s.Split("=")[1]);
+            }
+
+            PropertyInfo[] properties = typeof(MyArgs).GetProperties();
+            foreach (PropertyInfo property in properties)
+            {
+                var value = myArgs[property.Name];
+                property.SetValue(record, value);
+            }
+
+            string f = File.ReadAllText(record.CurrentFileLocation);
+            JToken d = JsonConvert.DeserializeObject<JToken>(f);
+            int index = 0;
+            foreach (string lang in record.TargetLanguage.Split(';'))
+            {
+                doWork(d, lang, apiKey);
                 var betterDictionary = DotNotationToDictionary(myData);
+
                 var json = JsonConvert.SerializeObject(betterDictionary);
-                WriteToFile(json, targetFileList[index]);
+                WriteToFile(json, record.TargetFileName.Split(";")[index]);
                 index++;
             }
         }
@@ -50,13 +76,13 @@ namespace GoogleTranslation_Console
             Console.WriteLine(json);
         }
 
-        private static void TranslateValues(JToken data, string target, string apiKey)
+        private static void doWork(JToken data, string target, string apiKey)
         {
             if (data.HasValues)
             {
                 foreach (var x in data.Children())
                 {
-                    TranslateValues(x, target, apiKey);
+                    doWork(x, target, apiKey);
                 }
             }
             else
@@ -121,4 +147,12 @@ namespace GoogleTranslation_Console
             return dictionary;
         }
     }
+    public class MyArgs
+    {
+        public string TargetLanguage { get; set; }
+        public string TargetFileName { get; set; }
+        public string CurrentFileLocation { get; set; }
+        public string OutputFilePath { get; set; }
+    }
+
 }
