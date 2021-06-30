@@ -26,7 +26,6 @@ namespace GoogleTranslation_Console
 
         static void Main(string[] args)
         {
-            Console.WriteLine(args[0]);
             MyArgs record = new MyArgs();
             var myArgs = new Dictionary<string, string>();
             if (args.Length != 4)
@@ -56,6 +55,7 @@ namespace GoogleTranslation_Console
             int index = 0;
             foreach (string lang in record.TargetLanguage.Split(';'))
             {
+                myData.Clear();
                 doWork(d, lang, apiKey);
                 var betterDictionary = DotNotationToDictionary(myData);
 
